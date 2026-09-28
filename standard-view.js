@@ -286,7 +286,7 @@ export function renderMyList() {
   });
 }
 
-export function goToTrainee(id) {
+function goToTrainee(id) {
   const idx = state.myList.findIndex(t => t.id === id);
   if (idx === -1) return;
   myPage = Math.floor(idx / MY_PAGE_SIZE) + 1;
@@ -481,7 +481,7 @@ function myCardHtml(t) {
   </div>`;
 }
 
-export function addCustom() {
+function addCustom() {
   if (!state.settings.allowCustomTrainees) return;
   const input = document.getElementById('custom-name');
   const name = input.value.trim();

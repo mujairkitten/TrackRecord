@@ -16,10 +16,10 @@ export const CAL_YEAR_GROUPS = ["Junior", "Classic", "Senior"];
 const CAL_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const CAL_TURNS = ["Early", "Late"];
 
-export function raceAppliesToYear(race, yearGroup) {
+function raceAppliesToYear(race, yearGroup) {
   return race.year.split(",").map(s => s.trim()).includes(yearGroup);
 }
-export function calSlotKey(month, turn) { return `${month}|${turn}`; }
+function calSlotKey(month, turn) { return `${month}|${turn}`; }
 
 const SLOT_RACE_MAP = (() => {
   const map = new Map();

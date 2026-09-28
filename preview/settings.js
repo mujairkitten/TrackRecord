@@ -1,4 +1,4 @@
-import { state, saveState, normalizeImportedTrainees, normalizeSettings, traineeNameKey, wireTabArrowNav, showToast, announce, MAX_MY_LIST, MAX_IMPORT_TRAINEES, MAX_IMPORT_TROPHIES } from './core.js';
+import { state, saveState, normalizeImportedTrainees, normalizeSettings, traineeNameKey, wireTabArrowNav, showToast, announce, MAX_MY_LIST, MAX_IMPORT_TRAINEES, MAX_IMPORT_TROPHIES, MAX_STORED_BYTES } from './core.js';
 import { renderMainView } from './render-bus.js';
 
 const NAVBAR_POSITIONS_DESKTOP = ['left', 'bottom', 'right', 'top'];
@@ -43,7 +43,7 @@ function updateRailViewButton() {
     : `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10H21M8 3V7M16 3V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
 }
 
-export function refreshNavPositionButtons() {
+function refreshNavPositionButtons() {
   const desktop = isDesktopViewport();
   const activePos = activeNavbarPosition();
   document.querySelectorAll('.nav-pos-btn').forEach(btn => {
@@ -126,7 +126,7 @@ export function closeSettingsPanel() {
   if (btn) btn.setAttribute('aria-expanded', 'false');
 }
 
-export function openSettingsPanel() {
+function openSettingsPanel() {
   const panel = document.getElementById('settings-panel');
   const btn = document.getElementById('settings-btn');
   if (panel) {
@@ -263,7 +263,7 @@ function backupFilename() {
   return `TrackRecord-${yy}${mm}${dd}-${hh}${mi}${ss}.json`;
 }
 
-export function exportList() {
+function exportList() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -272,7 +272,7 @@ export function exportList() {
   URL.revokeObjectURL(url);
 }
 
-export function importListFromText(text) {
+function importListFromText(text) {
   try {
     if (typeof text !== 'string' || text.length > 2 * 1024 * 1024) throw new Error("bad format");
     const parsed = JSON.parse(text);
@@ -331,10 +331,9 @@ export function importListFromText(text) {
   }
 }
 
-export function importList(file, onDone) {
+function importList(file, onDone) {
   if (!file) return;
-  const MAX_IMPORT_BYTES = 2 * 1024 * 1024;
-  if (typeof file.size === 'number' && file.size > MAX_IMPORT_BYTES) {
+  if (typeof file.size === 'number' && file.size > MAX_STORED_BYTES) {
     showToast("That file is too large — expected a Track Record export under 2MB.", { kind: 'error' });
     if (typeof onDone === 'function') onDone(false);
     return;

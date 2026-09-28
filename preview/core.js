@@ -2,7 +2,7 @@ import { RACES } from '../data/races.js';
 import { DATABASE } from '../data/database.js';
 import { renderMyList } from './render-bus.js';
 
-export const GRADES = ["A", "B", "C", "D", "E", "F", "G"];
+const GRADES = ["A", "B", "C", "D", "E", "F", "G"];
 export const GRADE_INFO = {
   A: { tier: "a" },
   B: { tier: "b" },
@@ -12,7 +12,7 @@ export const GRADE_INFO = {
   F: { tier: "f" },
   G: { tier: "g" },
 };
-export const GRADE_TIP_SURFACE = {
+const GRADE_TIP_SURFACE = {
   A: { pct: "100%", tip: "Baseline acceleration. No penalty, safe to race here." },
   B: { pct: "-10%", tip: "≈-0.03 to -0.05 m/s² acceleration. One matching spark usually bumps this to A." },
   C: { pct: "-20%", tip: "≈-0.07 to -0.09 m/s² acceleration. Worth 4-6 sparks before racing seriously." },
@@ -21,7 +21,7 @@ export const GRADE_TIP_SURFACE = {
   F: { pct: "-70%", tip: "≈-0.23 to -0.33 m/s² acceleration — near-crippling. Even max sparks (12) only gives you to C." },
   G: { pct: "-90%", tip: "≈-0.30 to -0.42 m/s² acceleration — worst case. Only for a must-have trophy. Even max sparks (12) only gives you to C." },
 };
-export const GRADE_TIP_DISTANCE = {
+const GRADE_TIP_DISTANCE = {
   A: { pct: "100%", tip: "Baseline. No penalty to late-race speed or acceleration." },
   B: { pct: "-10%", tip: "≈-0.11 to -0.15 m/s late-race speed. Acceleration still unaffected. One matching spark usually bumps this to A." },
   C: { pct: "-20%", tip: "≈-0.22 to -0.31 m/s late-race speed. Acceleration still unaffected. Worth 4-6 sparks before racing seriously." },
@@ -30,7 +30,7 @@ export const GRADE_TIP_DISTANCE = {
   F: { pct: "-80%", tip: "≈-0.88 to -1.24 m/s late-race speed, plus ≈-0.16 to -0.23 m/s² acceleration. Even max sparks (12) only gives you to C." },
   G: { pct: "-90%", tip: "≈-0.99 to -1.39 m/s late-race speed, plus ≈-0.20 to -0.28 m/s² acceleration. Worst case — only for a must-have trophy. Even max sparks (12) only gives you to C." },
 };
-export const CATS = [
+const CATS = [
   { key: "turf", label: "Turf", group: "surface", stat: "Acceleration" },
   { key: "dirt", label: "Dirt", group: "surface", stat: "Acceleration" },
   { key: "sprint", label: "Sprint", group: "distance", stat: "Late-race Speed" },
@@ -38,8 +38,8 @@ export const CATS = [
   { key: "medium", label: "Medium", group: "distance", stat: "Late-race Speed" },
   { key: "long", label: "Long", group: "distance", stat: "Late-race Speed" },
 ];
-export const SURFACE_KEYS = ["turf", "dirt"];
-export const DISTANCE_KEYS = ["sprint", "mile", "medium", "long"];
+const SURFACE_KEYS = ["turf", "dirt"];
+const DISTANCE_KEYS = ["sprint", "mile", "medium", "long"];
 const SAFE_ID = /^[a-z0-9]{7}$/;
 const MAX_NAME_LENGTH = 120;
 const MAX_NOTE_LENGTH = 500;
@@ -340,7 +340,7 @@ export function escapeAttr(str) {
 }
 
 export function gradeOf(v) { return typeof v === 'string' ? v : v.base; }
-export function altOf(v) { return typeof v === 'string' ? null : v; }
+function altOf(v) { return typeof v === 'string' ? null : v; }
 
 /* ---------- Tooltip ---------- */
 let tooltipEl = null;
@@ -371,7 +371,7 @@ function positionTooltip(target) {
   el.classList.add('show');
   el.setAttribute('aria-hidden', 'false');
 }
-export function showTooltip(target, catKey, aptValue) {
+function showTooltip(target, catKey, aptValue) {
   const el = ensureTooltipEl();
   if (!el) return;
   const cat = CATS.find(c => c.key === catKey);
@@ -393,7 +393,7 @@ export function showTooltip(target, catKey, aptValue) {
   tooltipTarget = target;
   positionTooltip(target);
 }
-export function showTextTooltip(target, text) {
+function showTextTooltip(target, text) {
   const el = ensureTooltipEl();
   if (!el) return;
   el.style.width = 'auto';
@@ -403,7 +403,7 @@ export function showTextTooltip(target, text) {
   tooltipTarget = target;
   positionTooltip(target);
 }
-export function hideTooltip() {
+function hideTooltip() {
   tooltipTarget = null;
   const el = ensureTooltipEl();
   if (!el) return;
@@ -425,7 +425,7 @@ function repositionTooltip() {
 document.addEventListener('scroll', repositionTooltip, true);
 window.addEventListener('resize', repositionTooltip);
 
-export function chipHtml(apt, key) {
+function chipHtml(apt, key) {
   const cat = CATS.find(c => c.key === key);
   const value = apt[key];
   const grade = gradeOf(value);
@@ -517,7 +517,7 @@ export function wireChips(root) {
     }
   });
 }
-export function slugify(name) {
+function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 const KNOWN_ICON_SLUGS = new Set(DATABASE.map(d => slugify(d.name)));

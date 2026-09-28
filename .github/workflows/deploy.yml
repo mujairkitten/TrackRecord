@@ -42,6 +42,19 @@ jobs:
         with:
           node-version: 24
 
+      - name: Verify module imports resolve
+        # `node --check` (run later, on the minified output) parses each file
+        # in isolation and terser does not bundle, so NEITHER catches an
+        # import that names a symbol the target module does not export. That
+        # mistake passes CI green and then throws, in the browser:
+        #   SyntaxError: The requested module './core.js' does not provide an
+        #   export named 'typoedName'
+        # i.e. a blank page for every visitor. This closes that gap.
+        #
+        # A single '.' walk covers both trees: the root modules and
+        # preview/, which imports ../data/ from outside its own directory.
+        run: node tools/check-imports.mjs .
+
       - name: Install minifiers
         run: npm install --no-save --no-package-lock terser@5.51.2 csso-cli@4.0.2
 

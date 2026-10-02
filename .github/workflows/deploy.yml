@@ -18,23 +18,34 @@ jobs:
 
       - name: Verify shared data layout
         run: |
-          # Option 2: preview borrows Main's data via ../data/. The preview
-          # tree must NOT contain its own data/ folder, and preview JS must
-          # not import from ./data/ — both would silently shadow the shared
-          # copy and could drift out of sync with the Main build.
+          # Layout: the Carotene hub owns the site root; Track Record is a
+          # subdirectory, and its preview/ testing ground is nested one level
+          # deeper still. preview borrows Track Record's data via ../data/,
+          # so the preview tree must NOT own its own data/ folder and its JS
+          # must not import from ./data/ — either would silently shadow the
+          # shared copy and drift out of sync with the main build.
 
-          if [ -d preview/data ]; then
-            echo "::error::preview/data/ exists."
-            echo "Option 2 expects preview to import from ../data/ instead."
-            echo "Delete preview/data/ and update the JS imports, then re-push."
+          PREVIEW="trackrecord/preview"
+
+          if [ -d "$PREVIEW/data" ]; then
+            echo "::error::$PREVIEW/data/ exists."
+            echo "preview is expected to import from ../data/ instead."
+            echo "Delete $PREVIEW/data/ and update the JS imports, then re-push."
             exit 1
           fi
 
-          MATCHES="$(grep -rnE "from ['\"]\./data/" preview --include='*.js' || true)"
+          MATCHES="$(grep -rnE "from ['\"]\./data/" "$PREVIEW" --include='*.js' || true)"
           if [ -n "$MATCHES" ]; then
             echo "::error::Preview still imports from ./data/:"
             echo "$MATCHES"
-            echo "Change these to ../data/ to reach Main's shared copy."
+            echo "Change these to ../data/ to reach the shared copy."
+            exit 1
+          fi
+
+          # The hub must stay a hub: no tool sources may leak into the root.
+          if [ -f main.js ] || [ -d data ]; then
+            echo "::error::Tool sources found at the repository root."
+            echo "The root is the Carotene landing page; app sources belong in trackrecord/."
             exit 1
           fi
 
@@ -51,8 +62,9 @@ jobs:
         #   export named 'typoedName'
         # i.e. a blank page for every visitor. This closes that gap.
         #
-        # A single '.' walk covers both trees: the root modules and
-        # preview/, which imports ../data/ from outside its own directory.
+        # A single '.' walk covers the whole repo: trackrecord/,
+        # trackrecord/preview/ (which imports ../data/ from outside its own
+        # directory), and the data modules themselves.
         run: node tools/check-imports.mjs .
 
       - name: Install minifiers
@@ -65,14 +77,18 @@ jobs:
           CSSO="$(pwd)/node_modules/.bin/csso"
 
           # $3 = space-separated list of extra module files to minify/check
-          #      (lets Main and Preview have different module graphs).
+          #      (lets the main build and preview have different module graphs).
           # $4 = 'yes' if this source tree owns its own data/ folder.
-          #      Main: yes. Preview: no — it imports from ../data/.
+          #      trackrecord: yes. preview: no — it imports from ../data/.
+          # $5 = 'yes' if this source tree owns its own favicon.svg.
+          #      The hub and trackrecord each ship one; preview borrows
+          #      trackrecord's via ../favicon.svg and must not copy it again.
           build_one() {
             SRC="$1"
             DEST="$2"
             EXTRA="${3:-}"
             OWN_DATA="${4:-yes}"
+            OWN_FAVICON="${5:-yes}"
 
             mkdir -p "$DEST/icons"
             if [ "$OWN_DATA" = "yes" ]; then
@@ -80,10 +96,11 @@ jobs:
             fi
 
             cp "$SRC/index.html" "$DEST/"
-            # Preview reuses the root favicon via ../favicon.svg, so it has no local copy.
-            [ -f "$SRC/favicon.svg" ] && cp "$SRC/favicon.svg" "$DEST/" || true
+            if [ "$OWN_FAVICON" = "yes" ] && [ -f "$SRC/favicon.svg" ]; then
+              cp "$SRC/favicon.svg" "$DEST/"
+            fi
             # KAO banner is a classic script (no imports): minify plainly, never as a module.
-            # Preview reuses the root copy via ../kao-banner.js.
+            # preview reuses trackrecord's copy via ../kao-banner.js.
             [ -f "$SRC/kao-banner.js" ] && cp "$SRC/kao-banner.js" "$DEST/" || true
             [ -d "$SRC/icons" ] && cp -R "$SRC/icons/." "$DEST/icons/" || true
 
@@ -111,15 +128,25 @@ jobs:
             fi
           }
 
-          # Main owns its data.
-          build_one "." "deploy" "settings render-bus" "yes"
+          # ---- Carotene hub (site root) ----
+          # A plain static page: no modules, no data, no icons. Just the
+          # landing page, its stylesheet, and its own favicon.
+          mkdir -p deploy
+          cp index.html deploy/
+          cp favicon.svg deploy/
+          "$CSSO" style.css -o deploy/style.css
 
-          # Preview borrows Main's data via ../data/.
-          build_one "preview" "deploy/preview" "settings render-bus" "no"
+          # ---- Track Record ----
+          # Owns its data/, icons/ and favicon. Its preview/ borrows them.
+          build_one "trackrecord" "deploy/trackrecord" "settings render-bus" "yes" "yes"
 
-          # Vendored classic script: minify without --module (shares root copy).
-          "$TERSER" kao-banner.js -c passes=3 -m -o deploy/kao-banner.js
-          node --check deploy/kao-banner.js
+          # ---- Track Record preview (testing ground) ----
+          # Borrows trackrecord's data/, icons/, favicon and kao-banner via ../.
+          build_one "trackrecord/preview" "deploy/trackrecord/preview" "settings render-bus" "no" "no"
+
+          # Vendored classic script: minify without --module (shares trackrecord copy).
+          "$TERSER" trackrecord/kao-banner.js -c passes=3 -m -o deploy/trackrecord/kao-banner.js
+          node --check deploy/trackrecord/kao-banner.js
 
           [ -f CNAME ] && cp CNAME deploy/ || true
 
@@ -129,11 +156,24 @@ jobs:
           # Stable filenames + aggressive caching = users stuck on old bundles.
           # Stamp the commit short-SHA onto local JS/CSS/favicon URLs so each
           # deploy is a cache-miss. Google Fonts URLs are untouched.
+          # Three pages, three link shapes: the hub uses ./ prefixes, the app
+          # uses bare names, preview reaches up with ../.
           TAG="${GITHUB_SHA::7}"
-          sed -i "s#src=\"main.js\"#src=\"main.js?v=${TAG}\"#; s#href=\"style.css\"#href=\"style.css?v=${TAG}\"#; s#href=\"favicon.svg\"#href=\"favicon.svg?v=${TAG}\"#; s#href=\"./favicon.svg\"#href=\"./favicon.svg?v=${TAG}\"#; s#src=\"kao-banner.js?id=#src=\"kao-banner.js?v=${TAG}\&id=#" deploy/index.html
-          sed -i "s#src=\"main.js\"#src=\"main.js?v=${TAG}\"#; s#href=\"style.css\"#href=\"style.css?v=${TAG}\"#; s#href=\"../favicon.svg\"#href=\"../favicon.svg?v=${TAG}\"#; s#src=\"../kao-banner.js?id=#src=\"../kao-banner.js?v=${TAG}\&id=#" deploy/preview/index.html
-          grep -H 'main\.js?v=' deploy/index.html deploy/preview/index.html
-          grep -H 'kao-banner\.js?v=' deploy/index.html deploy/preview/index.html
+
+          # Carotene hub: ./style.css, ./favicon.svg
+          sed -i "s#href=\"./style.css\"#href=\"./style.css?v=${TAG}\"#; s#href=\"./favicon.svg\"#href=\"./favicon.svg?v=${TAG}\"#" deploy/index.html
+
+          # Track Record: main.js, style.css, ./favicon.svg, kao-banner.js
+          sed -i "s#src=\"main.js\"#src=\"main.js?v=${TAG}\"#; s#href=\"style.css\"#href=\"style.css?v=${TAG}\"#; s#href=\"./favicon.svg\"#href=\"./favicon.svg?v=${TAG}\"#; s#src=\"kao-banner.js?id=#src=\"kao-banner.js?v=${TAG}\&id=#" deploy/trackrecord/index.html
+
+          # Track Record preview: same as the app but reaching up with ../
+          sed -i "s#src=\"main.js\"#src=\"main.js?v=${TAG}\"#; s#href=\"style.css\"#href=\"style.css?v=${TAG}\"#; s#href=\"../favicon.svg\"#href=\"../favicon.svg?v=${TAG}\"#; s#src=\"../kao-banner.js?id=#src=\"../kao-banner.js?v=${TAG}\&id=#" deploy/trackrecord/preview/index.html
+
+          # Assert every page actually got stamped - a silent no-op here is
+          # exactly how users end up pinned to a stale bundle.
+          grep -H 'style\.css?v='       deploy/index.html deploy/trackrecord/index.html deploy/trackrecord/preview/index.html
+          grep -H 'main\.js?v='         deploy/trackrecord/index.html deploy/trackrecord/preview/index.html
+          grep -H 'kao-banner\.js?v='   deploy/trackrecord/index.html deploy/trackrecord/preview/index.html
 
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

@@ -1,6 +1,0 @@
-# About icons
-
-#### Those icons are exempt from GPL-3 license, as those aren't mine.
-
-#### Those icons are fall under [Cygames' Umamusume: Pretty Derby Fan-Created Content Guidelines.](https://umamusume.com/fan-createdguide)
-

@@ -1,12 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Track Record: four checkboxes, three checked">
-  <title>Track Record</title>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="17" y="17" width="40" height="40" rx="9" fill="#22b573" stroke="#22b573" stroke-width="2"/>
-    <path d="M26.5 37l8 8 13-16" stroke="#ffffff" stroke-width="5"/>
-    <rect x="63" y="17" width="40" height="40" rx="9" fill="#22b573" stroke="#22b573" stroke-width="2"/>
-    <path d="M72.5 37l8 8 13-16" stroke="#ffffff" stroke-width="5"/>
-    <rect x="17" y="63" width="40" height="40" rx="9" fill="#22b573" stroke="#22b573" stroke-width="2"/>
-    <path d="M26.5 83l8 8 13-16" stroke="#ffffff" stroke-width="5"/>
-    <rect x="63" y="63" width="40" height="40" rx="9" fill="none" stroke="#9aa3b8" stroke-width="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Carotene">
+  <title>Carotene</title>
+  <!-- Same silhouette and colours as the wordmark carrot (the 24x24 geometry,
+       re-centred on 32x32). The body is filled rather than stroked: the
+       wordmark's 1.8px outline is invisible at favicon sizes. Scaled past
+       1:1 on purpose, so the mark still fills the plate at 16px. The plate
+       matches the app's panel colour, so the orange clears contrast on a
+       light tab bar as well as a dark one. -->
+  <rect width="32" height="32" rx="7" fill="#171a22"/>
+  <g transform="translate(16 16) rotate(45) scale(1.12) translate(-12 -12)">
+    <path d="M12 6.3C10.9 4.8 9.9 4.1 8.4 3.7" fill="none" stroke="#22b573" stroke-width="2.3" stroke-linecap="round"/>
+    <path d="M12 6.1C12 4.6 12 3.5 12 2.6" fill="none" stroke="#22b573" stroke-width="2.3" stroke-linecap="round"/>
+    <path d="M12 6.3C13.1 4.8 14.1 4.1 15.6 3.7" fill="none" stroke="#22b573" stroke-width="2.3" stroke-linecap="round"/>
+    <path d="M12 21C10.5 17 9 13.4 9 10.3C9 7.7 10.3 6.1 12 6.1C13.7 6.1 15 7.7 15 10.3C15 13.4 13.5 17 12 21Z" fill="#e8873a"/>
   </g>
 </svg>

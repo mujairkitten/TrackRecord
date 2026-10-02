@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Track Record - Track character aptitudes, distances, and trophy ledger for trainees.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; worker-src 'none'">
-  <!-- Note: the KAO countdown banner is vendored locally (../kao-banner.js), so
+  <!-- Note: the KAO countdown banner is vendored locally (kao-banner.js), so
        script-src needs no third-party host. frame-ancestors is ignored in
        <meta> CSP per spec; hosting must also send it as an HTTP header. -->
   <title>Track Record</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -151,17 +151,62 @@
       </button>
     </div>
     <div class="rail-item-wrap carotene-wrap">
-      <button class="btn rail-action" id="carotene-btn" type="button" aria-label="Carotene (coming soon)" data-tooltip="Carotene — coming soon" aria-expanded="false" aria-controls="carotene-panel">
+      <button class="btn rail-action" id="carotene-btn" type="button" aria-label="Carotene" data-tooltip="Carotene" aria-expanded="false" aria-controls="carotene-panel">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Unfocused, these inherit currentColor from the svg above. The
+               focused (panel open) colours come from CSS keyed off
+               aria-expanded, so the closed state is left untouched. -->
           <g transform="rotate(45 12 12)">
-            <path d="M12 21C10.5 17 9 13.4 9 10.3C9 7.7 10.3 6.1 12 6.1C13.7 6.1 15 7.7 15 10.3C15 13.4 13.5 17 12 21Z" stroke-width="1.8"/>
-            <path d="M12 6.3C11 4.9 10 4.3 8.6 3.9" stroke-width="1.5"/>
-            <path d="M12 6.1C12 4.7 12 3.7 12 2.9" stroke-width="1.5"/>
-            <path d="M12 6.3C13 4.9 14 4.3 15.4 3.9" stroke-width="1.5"/>
+            <path class="carrot-body" d="M12 21C10.5 17 9 13.4 9 10.3C9 7.7 10.3 6.1 12 6.1C13.7 6.1 15 7.7 15 10.3C15 13.4 13.5 17 12 21Z" stroke-width="1.8"/>
+            <path class="carrot-leaf" d="M12 6.3C11 4.9 10 4.3 8.6 3.9" stroke-width="1.5"/>
+            <path class="carrot-leaf" d="M12 6.1C12 4.7 12 3.7 12 2.9" stroke-width="1.5"/>
+            <path class="carrot-leaf" d="M12 6.3C13 4.9 14 4.3 15.4 3.9" stroke-width="1.5"/>
           </g>
         </svg>
       </button>
-      <div class="carotene-panel" id="carotene-panel" aria-hidden="true">Coming Soon</div>
+      <!-- Mini landing page. The brand links up to the Carotene hub, which is
+           one level above this build (../ from trackrecord/, ../../ from
+           trackrecord/preview/). The current tool is marked, not linked:
+           you are already there. -->
+      <div class="carotene-panel" id="carotene-panel" aria-hidden="true">
+        <a class="carotene-panel-brand" href="../">
+          <svg class="carotene-panel-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round">
+            <g transform="rotate(45 12 12)">
+              <path class="carrot-body" d="M12 21C10.5 17 9 13.4 9 10.3C9 7.7 10.3 6.1 12 6.1C13.7 6.1 15 7.7 15 10.3C15 13.4 13.5 17 12 21Z" stroke-width="1.8"/>
+              <path class="carrot-leaf" d="M12 6.3C11 4.9 10 4.3 8.6 3.9" stroke-width="1.5"/>
+              <path class="carrot-leaf" d="M12 6.1C12 4.7 12 3.7 12 2.9" stroke-width="1.5"/>
+              <path class="carrot-leaf" d="M12 6.3C13 4.9 14 4.3 15.4 3.9" stroke-width="1.5"/>
+            </g>
+          </svg>
+          <span class="carotene-panel-name">Carotene<sup class="carotene-panel-beta">Beta</sup></span>
+        </a>
+        <ul class="carotene-panel-list">
+          <li>
+            <span class="carotene-panel-item is-current" aria-current="page">
+              <span class="carotene-panel-item-mark" aria-hidden="true">
+                <svg viewBox="0 0 120 120" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="17" y="17" width="40" height="40" rx="9" fill="#22b573" stroke="#22b573" stroke-width="2"/>
+                    <path d="M26.5 37l8 8 13-16" stroke="#ffffff" stroke-width="5"/>
+                    <rect x="63" y="17" width="40" height="40" rx="9" fill="#22b573" stroke="#22b573" stroke-width="2"/>
+                    <path d="M72.5 37l8 8 13-16" stroke="#ffffff" stroke-width="5"/>
+                    <rect x="17" y="63" width="40" height="40" rx="9" fill="#22b573" stroke="#22b573" stroke-width="2"/>
+                    <path d="M26.5 83l8 8 13-16" stroke="#ffffff" stroke-width="5"/>
+                    <rect x="63" y="63" width="40" height="40" rx="9" fill="none" stroke="#9aa3b8" stroke-width="2"/>
+                  </g>
+                </svg>
+              </span>
+              <span class="carotene-panel-item-name">Track Record</span>
+            </span>
+          </li>
+          <li>
+            <span class="carotene-panel-item is-soon">
+              <span class="carotene-panel-item-mark" aria-hidden="true"></span>
+              <span class="carotene-panel-item-name">Coming Soon</span>
+            </span>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
@@ -238,7 +283,7 @@
     <div class="version-badge">
       <div class="version-item"><span>Version</span><strong>v5.0.2</strong></div>
       <span class="version-divider" aria-hidden="true">|</span>
-      <div class="version-item"><span>Database</span><strong>v2609a</strong></div>
+      <div class="version-item"><span>Database</span><strong>v2610a</strong></div>
     </div>
     <div class="about-text">
       <div class="about-section">
@@ -253,11 +298,11 @@
       </div>
       <div class="about-section about-links">
         <div class="about-section-label">More</div>
-        <p>Want to return to the stable build? Open the <a href="../">Main version <span>(current version: 5.0.2)</span></a>.</p>
+        <p>Want to try the alternate build? Open the <a href="preview/">Preview version <span>(current version: 5.1 Beta 1)</span></a>.</p>
         <p class="about-credit">2026, Mujairkitten · Made with various AI tools · Not affiliated with Cygames.<br>Source code is licensed under GPL-3. Uma icons follow <a href="https://umamusume.com/fan-createdguide" rel="noopener noreferrer">Cygames' Fan Content Guide</a>.</p>
       </div>
       <div id="kao-banner"></div>
-      <script src="../kao-banner.js?id=kao-banner&amp;size=mini"></script>
+      <script src="kao-banner.js?id=kao-banner&amp;size=mini"></script>
     </div>
   </div>
 </div>

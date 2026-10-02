@@ -28,6 +28,11 @@
   --accent2: #2bcfa8;
   --accent-rgb: 34, 181, 115;
   --accent2-rgb: 43, 207, 168;
+  /* Carrot mark for the Carotene panel and the rail button. Mirrors the hub's
+     own tokens, light pair included, so the mark matches the landing page in
+     either theme. */
+  --carrot: #e8873a;
+  --carrot-leaf: #22b573;
   --glass-bg: rgba(23, 26, 34, .72);
   --glass-bg-soft: rgba(23, 26, 34, .65);
   --glass-border: rgba(255, 255, 255, .09);
@@ -77,6 +82,9 @@ body.light {
   --accent2: #187560;
   --accent-rgb: 24, 122, 77;
   --accent2-rgb: 24, 117, 96;
+  /* Light pair, as on the hub: the deep orange clears 3:1 on light chrome. */
+  --carrot: #c2651c;
+  --carrot-leaf: #187a4d;
   --glass-bg: var(--bg-alt);
   --glass-bg-soft: var(--panel);
   --glass-border: var(--line);
@@ -425,16 +433,156 @@ body.nav-top .cal-sidebar {
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
+  width: 15rem;
+  max-width: calc(100vw - 24px);
   background: var(--faux-glass-bg);
   border: 1px solid var(--glass-border);
-  padding: 8px 10px;
-  border-radius: 10px;
-  white-space: nowrap;
+  padding: 12px;
+  border-radius: 12px;
   z-index: 200;
-  font-weight: 700;
+  font-weight: 400;
+  text-align: left;
 }
 .carotene-panel.open {
   display: block;
+}
+
+/* --- panel contents: a mini landing page --- */
+.carotene-panel-brand {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.carotene-panel-brand:hover .carotene-panel-name {
+  color: var(--accent);
+}
+.carotene-panel-brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.carotene-panel-mark {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+}
+/* The carrot matches the hub's, in whichever theme is active - the hub
+   carries the same light/dark pair, so the two agree everywhere. Light needs
+   the deeper orange or the mark drops to 2.4:1 on the light chrome, below the
+   3:1 floor for a graphical object. :focus-visible is included so keyboard
+   users get the same affordance hover gives. The unfocused, unhovered rail
+   button still inherits currentColor and is left exactly as it was. */
+.carotene-panel-mark .carrot-body,
+#carotene-btn:hover .carrot-body,
+#carotene-btn:focus-visible .carrot-body,
+#carotene-btn[aria-expanded="true"] .carrot-body { stroke: var(--carrot); }
+.carotene-panel-mark .carrot-leaf,
+#carotene-btn:hover .carrot-leaf,
+#carotene-btn:focus-visible .carrot-leaf,
+#carotene-btn[aria-expanded="true"] .carrot-leaf { stroke: var(--carrot-leaf); }
+
+/* Eases the swap in time with the button's own hover transitions. The global
+   reduced-motion block already collapses this. */
+#carotene-btn .carrot-body,
+#carotene-btn .carrot-leaf { transition: stroke .15s ease; }
+.carotene-panel-name {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .01em;
+}
+/* Status badge, set on the baseline rather than raised as a superscript.
+   It lives inside the name span rather than beside it because the brand
+   link is a flex container, where a bare child would become a flex item and
+   lose its flow with the text. The explicit vertical-align: baseline is
+   load-bearing: the element is a <sup>, and the UA stylesheet raises those
+   on its own, so removing our own declaration is not enough.
+   line-height is 1, not the inherited 1.5 - a badge is a chip, and the
+   extra leading is what pushed the box past the title's cap height.
+   inline-flex + align-items centres the label in the chip: with a 1em line
+   box the glyphs sit slightly high inside it, and padding alone cannot
+   correct that on both edges at once. */
+.carotene-panel-beta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: .3em;
+  /* Asymmetric on purpose, leaning the label UP. "Beta" has no descenders, so
+     the font reserves descent these glyphs never use, which parks the ink
+     below the middle of its line box. More space below than above lifts it
+     back; the pair still sums to .4em, so the chip keeps its height. */
+  padding: calc(.2em - .5px) .5em calc(.2em + .5px);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--ink-dim);
+  font-size: .6em;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: .04em;
+  vertical-align: baseline;
+  white-space: nowrap;
+  /* Baseline alignment puts the label's baseline on the title's, but the
+     title's ink is 12px tall (cap height, no descenders) while the badge's
+     is only 7px - so a box centred on the badge's ink hangs 2.5px below the
+     middle of the wordmark, plus 0.5px from the asymmetric padding above.
+     Lifting by 3px lands the chip on the title's cap height. Transform, not
+     a vertical-align length, so it cannot disturb the line box. */
+  transform: translateY(-3px);
+}
+.carotene-panel-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+/* Square tiles, as on the landing page. */
+.carotene-panel-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 5.5rem;
+  height: 5.5rem;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  font-size: 10.5px;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--ink-dim);
+}
+/* The tool you are already using: marked, never linked. */
+.carotene-panel-item.is-current {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--ink);
+  font-weight: 600;
+}
+.carotene-panel-item-mark {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+}
+.carotene-panel-item-mark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* No icon yet for the unbuilt tool, so the slot reads as empty on purpose. */
+.carotene-panel-item.is-soon .carotene-panel-item-mark {
+  border: 1.5px dashed var(--line);
+  border-radius: 6px;
+}
+.carotene-panel-item.is-soon {
+  color: var(--ink-faint);
 }
 body.nav-top .carotene-panel {
   bottom: auto;
@@ -2168,18 +2316,22 @@ body.light .cal-race-add-btn:hover {
   body.nav-left .settings-panel.show {
     transform: translateX(0) scale(1);
   }
+  /* The rail button sits ~36px off the bottom edge, so centring a tall panel
+     on it always overhung the viewport. Anchoring the panel's BOTTOM to the
+     button's midline makes it grow upward instead, which stays on screen at
+     any viewport height. */
   body.nav-right .carotene-panel {
     right: calc(100% + 8px);
     bottom: auto;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-100%);
   }
   body.nav-left .carotene-panel {
     left: calc(100% + 8px);
     right: auto;
     bottom: auto;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-100%);
   }
   body.nav-left {
     padding-right: 0;

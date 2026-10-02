@@ -8,15 +8,15 @@ export const DATABASE = [
   {
     name: "Daiwa Scarlet", apt: {
       turf: "A", dirt: "G", sprint: "F",
-      mile: { base: "A", alt: "B", note: "A on base costume — her \"Christmas\" costume lowers this to B." },
+      mile: { base: "A", alt: "B", note: "A on base costume — her \"Nuit Étoilée de Scarlet\" costume lowers this to B." },
       medium: "A",
-      long: { base: "B", alt: "A", note: "B on base costume — her \"Christmas\" costume raises this to A." }
+      long: { base: "B", alt: "A", note: "B on base costume — her \"Nuit Étoilée de Scarlet\" costume raises this to A." }
     }
   },
   {
     name: "Vodka", apt: {
       turf: "A", dirt: "G", sprint: "F", mile: "A", medium: "A",
-      long: { base: "F", alt: "E", note: "F on base costume — her \"Christmas\" costume raises this to E." }
+      long: { base: "F", alt: "E", note: "F on base costume — her \"Fiery Aqua Vitae\" costume raises this to E." }
     }
   },
   { name: "Maruzensky", apt: { turf: "A", dirt: "D", sprint: "B", mile: "A", medium: "B", long: "C" } },
@@ -85,4 +85,6 @@ export const DATABASE = [
   { name: "Yamanin Zephyr", apt: { turf: "A", dirt: "D", sprint: "B", mile: "A", medium: "A", long: "G" } },
   { name: "Nakayama Festa", apt: { turf: "A", dirt: "G", sprint: "G", mile: "C", medium: "A", long: "B" } },
   { name: "Wonder Acute", apt: { turf: "G", dirt: "A", sprint: "D", mile: "A", medium: "A", long: "E" } },
+  { name: "Zenno Rob Roy", apt: { turf: "A", dirt: "G", sprint: "G", mile: "E", medium: "A", long: "A" } },
+  { name: "Hokko Tarumae", apt: { turf: "G", dirt: "A", sprint: "F", mile: "A", medium: "A", long: "E" } },
 ];

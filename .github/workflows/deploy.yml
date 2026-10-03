@@ -67,6 +67,14 @@ jobs:
         # directory), and the data modules themselves.
         run: node tools/check-imports.mjs .
 
+      - name: Verify preview sources are in sync
+        # preview/ mirrors trackrecord/'s sources (data/, icons/,
+        # kao-banner.js and favicon are borrowed via ../, not copied). The
+        # only legitimate per-build differences are relative asset paths,
+        # the version badge, the build tag, and the cross-link paragraph —
+        # see tools/check-preview-sync.mjs. Anything else fails the build.
+        run: node tools/check-preview-sync.mjs
+
       - name: Install minifiers
         run: npm install --no-save --no-package-lock terser@5.51.2 csso-cli@4.0.2
 
@@ -129,12 +137,15 @@ jobs:
           }
 
           # ---- Carotene hub (site root) ----
-          # A plain static page: no modules, no data, no icons. Just the
-          # landing page, its stylesheet, and its own favicon.
+          # The landing page, its stylesheet, its theme/modal script and its
+          # own favicon. hub.js is a classic script (no imports): never
+          # minified as a module.
           mkdir -p deploy
           cp index.html deploy/
           cp favicon.svg deploy/
+          cp hub.js deploy/
           "$CSSO" style.css -o deploy/style.css
+          node --check deploy/hub.js
 
           # ---- Track Record ----
           # Owns its data/, icons/ and favicon. Its preview/ borrows them.
@@ -160,8 +171,8 @@ jobs:
           # uses bare names, preview reaches up with ../.
           TAG="${GITHUB_SHA::7}"
 
-          # Carotene hub: ./style.css, ./favicon.svg
-          sed -i "s#href=\"./style.css\"#href=\"./style.css?v=${TAG}\"#; s#href=\"./favicon.svg\"#href=\"./favicon.svg?v=${TAG}\"#" deploy/index.html
+          # Carotene hub: ./style.css, ./favicon.svg, ./hub.js
+          sed -i "s#href=\"./style.css\"#href=\"./style.css?v=${TAG}\"#; s#href=\"./favicon.svg\"#href=\"./favicon.svg?v=${TAG}\"#; s#src=\"./hub.js\"#src=\"./hub.js?v=${TAG}\"#" deploy/index.html
 
           # Track Record: main.js, style.css, ./favicon.svg, kao-banner.js
           sed -i "s#src=\"main.js\"#src=\"main.js?v=${TAG}\"#; s#href=\"style.css\"#href=\"style.css?v=${TAG}\"#; s#href=\"./favicon.svg\"#href=\"./favicon.svg?v=${TAG}\"#; s#src=\"kao-banner.js?id=#src=\"kao-banner.js?v=${TAG}\&id=#" deploy/trackrecord/index.html
@@ -174,6 +185,7 @@ jobs:
           grep -H 'style\.css?v='       deploy/index.html deploy/trackrecord/index.html deploy/trackrecord/preview/index.html
           grep -H 'main\.js?v='         deploy/trackrecord/index.html deploy/trackrecord/preview/index.html
           grep -H 'kao-banner\.js?v='   deploy/trackrecord/index.html deploy/trackrecord/preview/index.html
+          grep -H 'hub\.js?v='          deploy/index.html
 
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

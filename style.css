@@ -4,11 +4,12 @@
  * A single continuous row of square tool tiles on one full-bleed rail,
  * with the wordmark set below it like a signature.
  *
- * The palette, the type (Quicksand) and the cleat background texture are
- * lifted from Track Record's style.css so the two read as one family. Kept
- * deliberately small: the hub is a list, so it needs no theming machinery
- * and no JavaScript. Light scheme follows the system preference, matching
- * Track Record's own light palette.
+ * The palette, the type (Quicksand), the cleat background texture and the
+ * theming machinery (body.light / body.dirt, same tokens and values) are
+ * lifted from Track Record's style.css so the two read as one family. The
+ * About overlay is a JS-driven modal like Track Record's: focus-trapped,
+ * Escape-dismissible, inert background. hub.js owns the theme switches
+ * and the modal; without it the page still renders, but About won't open.
  * ------------------------------------------------------------------ */
 
 :root {
@@ -27,26 +28,47 @@
   --accent-dim: #1a8f5a;
   --accent2: #2bcfa8;
   --accent-rgb: 34, 181, 115;
+  --accent2-rgb: 43, 207, 168;
   --carrot: #e8873a;
+  --carrot-leaf: #22b573;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f3f4f9;
-    --bg-alt: #ffffff;
-    --panel: #ffffff;
-    --panel-2: #eef0f6;
-    --line: #dde1eb;
-    --line-soft: #e8ebf2;
-    --ink: #1c2029;
-    --ink-dim: #5b6474;
-    --ink-faint: #656c7a;
-    --accent: #187a4d;
-    --accent-dim: #125f3b;
-    --accent2: #187560;
-    --accent-rgb: 24, 122, 77;
-    --carrot: #c2651c;
-  }
+/* Light theme: same tokens as Track Record's body.light. Applied by hub.js,
+   which defaults to the system preference when nothing is stored. */
+body.light {
+  --bg: #f3f4f9;
+  --bg-alt: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #eef0f6;
+  --line: #dde1eb;
+  --line-soft: #e8ebf2;
+  --ink: #1c2029;
+  --ink-dim: #5b6474;
+  --ink-faint: #656c7a;
+  --accent: #187a4d;
+  --accent-dim: #125f3b;
+  --accent2: #187560;
+  --accent-rgb: 24, 122, 77;
+  --accent2-rgb: 24, 117, 96;
+  --carrot: #c2651c;
+  --carrot-leaf: #187a4d;
+}
+
+/* Dirt theme: same tokens as Track Record's body.dirt. */
+body.dirt {
+  --accent: #e0a640;
+  --accent-dim: #b9822e;
+  --accent2: #c97b4a;
+  --accent-rgb: 224, 166, 64;
+  --accent2-rgb: 201, 123, 74;
+}
+
+body.light.dirt {
+  --accent: #7f560a;
+  --accent-dim: #6b4708;
+  --accent2: #96522a;
+  --accent-rgb: 127, 86, 10;
+  --accent2-rgb: 150, 82, 42;
 }
 
 * { box-sizing: border-box; }
@@ -136,21 +158,51 @@ body {
 
 .rail-version { color: var(--ink-faint); }
 
-/* ---- About ----------------------------------------------------------
-   A popup, not a panel that pushes the page. The hub ships no JavaScript, so
-   the overlay is driven by the URL fragment: the rail's "About" link points
-   at #about and .about is revealed on :target, then taken out of flow and
-   pinned over the viewport. Nothing below it moves.
+/* ---- Theme toggles, pinned with the About link ---- */
+.rail-toggle {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
 
-   Trade-off, and it is a real one - CSS can neither trap focus nor listen
-   for a key, so Escape and click-outside do NOT dismiss this, and the page
-   behind is not inert. The close link and the browser's Back button do.
-   Upgrade to <dialog> + showModal() if it needs to be a true modal. */
+.rail-toggle svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: block;
+}
+
+.rail-toggle:hover {
+  background: var(--panel-2);
+  color: var(--ink);
+  border-color: var(--line-soft);
+}
+
+.rail-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.rail-toggle[aria-pressed="true"] { color: var(--accent); }
+
+/* ---- About ----------------------------------------------------------
+   A popup, not a panel that pushes the page. Driven by hub.js like Track
+   Record's own About modal: .show reveals it, the background is inert,
+   focus is trapped inside, Escape and click-outside dismiss it, and focus
+   returns to the About link on close. */
 .about {
   display: none;
 }
 
-.about:target {
+.about.show {
   display: flex;
   position: fixed;
   inset: 0;
@@ -163,9 +215,8 @@ body {
   backdrop-filter: blur(2px);
 }
 
-/* Stop the page behind scrolling under the overlay. :has() is the only
-   selector that can see "the fragment is #about" from an ancestor. */
-body:has(.about:target) {
+/* Stop the page behind scrolling under the overlay. */
+body.modal-open {
   overflow: hidden;
 }
 
@@ -193,20 +244,21 @@ body:has(.about:target) {
   color: var(--ink);
 }
 
-/* A text glyph rather than a button: with no JS there is no click handler,
-   so a <button> would be a lie. It is a real link to #tools, which both
-   dismisses the panel and keeps a valid, shareable URL. */
 .about-close {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
   width: 1.9rem;
   height: 1.9rem;
+  padding: 0;
+  border: none;
   border-radius: 8px;
+  background: none;
+  font-family: inherit;
   font-size: 1.25rem;
   line-height: 1;
   color: var(--ink-dim);
-  text-decoration: none;
+  cursor: pointer;
   transition: background .15s ease, color .15s ease;
 }
 
@@ -387,10 +439,10 @@ body:has(.about:target) {
   height: clamp(2rem, 5.5vw, 2.75rem);
 }
 
-/* An edible carrot: orange root, green tops. The leaves borrow --accent so
-   they stay in step with the rest of the app's green automatically. */
+/* An edible carrot: orange root, green tops. --carrot-leaf tracks --accent
+   in every theme, same as Track Record. */
 .brand-mark .carrot-body { stroke: var(--carrot); }
-.brand-mark .carrot-leaf { stroke: var(--accent); }
+.brand-mark .carrot-leaf { stroke: var(--carrot-leaf); }
 
 /* The wordmark carries the only 700 on the page; tiles stay lighter so
    the eye still lands here last, which is the point. */

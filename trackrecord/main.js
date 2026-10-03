@@ -189,11 +189,17 @@ async function init() {
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    const settingsWasOpen = document.getElementById('settings-panel')?.classList.contains('show');
+    const caroteneWasOpen = document.getElementById('carotene-panel')?.classList.contains('open');
     closeCarotenePanel();
     closeAboutModal();
     closeBackupModal();
     closeSettingsPanel();
     if (closeCalTraineePanel()) document.getElementById('cal-trainee-btn')?.focus();
+    // Return focus to the invoking button so keyboard users don't lose
+    // their place when a popover is dismissed.
+    if (settingsWasOpen) document.getElementById('settings-btn')?.focus();
+    else if (caroteneWasOpen) document.getElementById('carotene-btn')?.focus();
   });
 }
 init();

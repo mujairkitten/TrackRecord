@@ -20,6 +20,18 @@
  *                 Set hidebutton=off to hide the close button
  *   animation=on  Add animation to border of banner (default: on)
  *                 Set animation=off to disable
+ *
+ * ---------------------------------------------------------------------------
+ * TrackRecord vendor notes (2026-10-03): this copy is byte-identical to
+ * https://keepandroidopen.org/banner.js as of the date above, plus the
+ * following local hardening changes:
+ *   - The 1s countdown interval only ticks while the banner is actually
+ *     visible (IntersectionObserver), instead of for the page lifetime.
+ *   - Post-deadline, the countdown clamps at zero instead of rendering
+ *     negative values for one tick.
+ *   - The close button's aria-label is localised per banner locale.
+ *   - The banner link uses rel="noopener noreferrer".
+ * ---------------------------------------------------------------------------
  */
 (function () {
   "use strict";
@@ -58,6 +70,42 @@
     bg:      "Android ще стане заключена платформа след",
     be:      "Android \u0441\u0442\u0430\u043d\u0435 \u0437\u0430\u043a\u0440\u044b\u0442\u0430\u0439 \u043f\u043b\u0430\u0444\u0442\u043e\u0440\u043c\u0430\u0439 \u0020 \u0020",
     hi:      "Android एक बंद इकोसिस्टम बन जाएगा"
+  };
+
+  // ── Localized "Close" labels for the dismiss button ────────────────────
+  var closeMessages = {
+    fa:      "بستن",
+    ar:      "إغلاق",
+    he:      "סגור",
+    en:      "Close",
+    mn:      "Хаах",
+    ca:      "Tanca",
+    cs:      "Zavřít",
+    de:      "Schließen",
+    da:      "Luk",
+    nl:      "Sluiten",
+    el:      "Κλείσιμο",
+    es:      "Cerrar",
+    fr:      "Fermer",
+    id:      "Tutup",
+    it:      "Chiudi",
+    ko:      "닫기",
+    pl:      "Zamknij",
+    "pt-BR": "Fechar",
+    ru:      "Закрыть",
+    sk:      "Zavrieť",
+    th:      "ปิด",
+    tr:      "Kapat",
+    uk:      "Закрити",
+    "zh-CN": "关闭",
+    "zh-TW": "關閉",
+    ja:      "閉じる",
+    fi:      "Sulje",
+    hu:      "Bezárás",
+    vi:      "Đóng",
+    bg:      "Затвори",
+    be:      "Закрыць",
+    hi:      "बंद करें"
   };
 
   // ── Parse query parameters from the script's own src URL ──────────────
@@ -249,7 +297,7 @@
     var link = document.createElement("a");
     link.href = linkUrl;
     link.target = "_blank";
-    link.rel = "noopener";
+    link.rel = "noopener noreferrer";
     link.textContent = messageText;
     banner.appendChild(link);
   } else {
@@ -270,7 +318,7 @@
   if (showClose) {
     var closeBtn = document.createElement("button");
     closeBtn.className = "kao-banner-close";
-    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.setAttribute("aria-label", closeMessages[locale] || closeMessages.en);
     closeBtn.textContent = "\u2715";
     closeBtn.addEventListener("click", function () {
       banner.style.display = "none";
@@ -313,6 +361,8 @@
   function updateBanner() {
     var now = new Date().getTime();
     var distance = countDownDate - now;
+    var expired = distance < 0;
+    if (expired) distance = 0;
 
     var days = Math.floor(distance / (1000 * 60 * 60 * 24));
     var hours = Math.floor(
@@ -341,11 +391,35 @@
 
     countdownSpan.textContent = remaining.join("");
 
-    if (distance < 0) {
+    if (expired && timer) {
       clearInterval(timer);
+      timer = null;
     }
   }
 
-  timer = setInterval(updateBanner, 1000);
-  updateBanner();
+  function startTimer() {
+    if (timer) return;
+    updateBanner();
+    timer = setInterval(updateBanner, 1000);
+  }
+
+  function stopTimer() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  // Only tick while the banner is actually visible. In TrackRecord the
+  // banner lives inside the About modal, so without this the 1s interval
+  // would run for the entire page lifetime.
+  if (typeof IntersectionObserver === "function") {
+    var visibilityObserver = new IntersectionObserver(function (entries) {
+      if (entries[0] && entries[0].isIntersecting) startTimer();
+      else stopTimer();
+    });
+    visibilityObserver.observe(banner);
+  } else {
+    startTimer();
+  }
 })();

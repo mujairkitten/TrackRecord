@@ -43,6 +43,13 @@ function updateRailViewButton() {
     : `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10H21M8 3V7M16 3V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
 }
 
+function updateAppearanceToggles() {
+  const modeBtn = document.getElementById('mode-toggle-btn');
+  if (modeBtn) modeBtn.setAttribute('aria-pressed', state.settings.lightMode ? 'true' : 'false');
+  const themeBtn = document.getElementById('theme-toggle-btn');
+  if (themeBtn) themeBtn.setAttribute('aria-pressed', state.settings.colorTheme === 'dirt' ? 'true' : 'false');
+}
+
 function refreshNavPositionButtons() {
   const desktop = isDesktopViewport();
   const activePos = activeNavbarPosition();
@@ -102,6 +109,7 @@ export function applySettingsUI() {
     }
   }
   updateRailViewButton();
+  updateAppearanceToggles();
   applyNavbarPosition();
 }
 
@@ -203,7 +211,11 @@ function onModalKeydown(e) {
   const overlay = e.currentTarget;
   if (e.key === 'Escape') {
     e.stopPropagation();
-    closeModal(overlay);
+    // Route through the specific closers so per-modal teardown runs
+    // (closeBackupModal clears the export-cooldown interval).
+    if (overlay.id === 'backup-overlay') closeBackupModal();
+    else if (overlay.id === 'about-overlay') closeAboutModal();
+    else closeModal(overlay);
     return;
   }
   if (e.key !== 'Tab') return;
@@ -218,9 +230,11 @@ function onModalKeydown(e) {
   }
 }
 
-function openModal(overlay) {
-  if (!overlay) return;
-  modalFocusStack.push(document.activeElement);
+function openModal(overlay, returnFocusEl) {
+  if (!overlay || overlay.classList.contains('show')) return;
+  // returnFocusEl lets callers capture the opener before they hide/inert it
+  // (e.g. openAboutModal closes the settings panel first).
+  modalFocusStack.push(returnFocusEl || document.activeElement);
   overlay.classList.add('show');
   overlay.addEventListener('keydown', onModalKeydown);
   setBackgroundInert(true);
@@ -234,16 +248,26 @@ function closeModal(overlay) {
   overlay.removeEventListener('keydown', onModalKeydown);
   const prev = modalFocusStack.pop();
   if (document.querySelectorAll('.modal-overlay.show').length === 0) setBackgroundInert(false);
-  if (prev && prev.isConnected) {
-    prev.focus();
+  // The recorded opener may have become unfocusable while the modal was open
+  // (e.g. it lives inside the now-inert settings panel) — fall back to a
+  // sensible control instead of dropping focus to <body>.
+  let target = (prev && prev.isConnected && !prev.closest('[inert]')) ? prev : null;
+  if (!target) {
+    if (overlay.id === 'about-overlay') target = document.getElementById('settings-btn');
+    else if (overlay.id === 'backup-overlay') target = document.getElementById('backup-btn');
+  }
+  if (target) {
+    target.focus();
   }
 }
 
 /* ---------- About modal ---------- */
 
 export function openAboutModal() {
+  // Capture the opener before closeSettingsPanel() inerts it.
+  const opener = document.activeElement;
   closeSettingsPanel();
-  openModal(document.getElementById('about-overlay'));
+  openModal(document.getElementById('about-overlay'), opener);
 }
 export function closeAboutModal() {
   closeModal(document.getElementById('about-overlay'));

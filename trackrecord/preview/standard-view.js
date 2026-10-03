@@ -152,7 +152,7 @@ export function renderMyList() {
   const wrap = document.getElementById('mylist');
   if (!wrap) return;
   const emptyEl = document.getElementById('mylist-empty');
-  document.getElementById('my-count').textContent = `${state.myList.length}/${DATABASE.length}`;
+  document.getElementById('my-count').textContent = `${state.myList.length}`;
 
   const liveIds = new Set(state.myList.map(t => t.id));
   for (const id of [...openInlineCals]) if (!liveIds.has(id)) openInlineCals.delete(id);
@@ -616,7 +616,7 @@ export function wireStandardViewControls() {
       const d = e && e.detail;
       if (!d || !d.name) return;
       const key = traineeNameKey(d.name);
-      document.getElementById('my-count').textContent = `${state.myList.length}/${DATABASE.length}`;
+      document.getElementById('my-count').textContent = `${state.myList.length}`;
       const grid = document.getElementById('db-grid');
       if (!grid) return;
       grid.querySelectorAll('[data-add]').forEach(btn => {

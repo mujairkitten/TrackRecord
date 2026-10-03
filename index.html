@@ -31,8 +31,8 @@
       <use href="#cleat-shape" opacity="0.11" transform="translate(140,350) scale(1.1) rotate(-12)"/>
       <use href="#cleat-shape" opacity="0.14" transform="translate(390,380) scale(1.3) rotate(22)"/>
     </pattern>
-    <rect width="100%" height="100%" fill="url(#cleat-pattern)"/>
   </defs>
+  <rect width="100%" height="100%" fill="url(#cleat-pattern)"/>
 </svg>
 
 <a class="skip-link" href="#tools">Skip to tools</a>
@@ -75,7 +75,7 @@
     <p class="rail-meta">
       <a class="rail-about" href="#about">About</a>
       <span class="rail-dot" aria-hidden="true"></span>
-      <span class="rail-version">Version: Beta 1</span>
+      <span class="rail-version">Version: Beta 1.5</span>
     </p>
   </section>
 
@@ -95,20 +95,20 @@
     <p class="brand-slogan">Simple web tools for UM:PD.</p>
   </header>
 
-  <!-- About. Opens because the "About" link above points here and the section
-       is styled on :target, so the hub needs no JavaScript for it. The close
-       link and the browser's Back button both dismiss it. -->
-  <section class="about" id="about" aria-labelledby="about-title">
+  <!-- About. Opened by hub.js like Track Record's own About modal: focus is
+       trapped inside, Escape and click-outside dismiss it, the page behind
+       is inert, and focus returns to the About link on close. -->
+  <section class="about" id="about" role="dialog" aria-modal="true" aria-labelledby="about-title">
     <div class="about-card">
       <div class="about-head">
         <h2 class="about-title" id="about-title">About Carotene</h2>
-        <a class="about-close" href="#tools" aria-label="Close About">&times;</a>
+        <button class="about-close" id="about-close" type="button" aria-label="Close About">&times;</button>
       </div>
 
       <div class="about-meta">
         <span class="about-meta-label">Version</span>
         <span class="about-dot" aria-hidden="true"></span>
-        <strong class="about-meta-value">Beta 1</strong>
+        <strong class="about-meta-value">Beta 1.5</strong>
       </div>
 
       <div class="about-body">
@@ -126,5 +126,6 @@
   </section>
 
 </main>
+<script src="./hub.js"></script>
 </body>
 </html>

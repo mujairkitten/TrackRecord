@@ -77,10 +77,10 @@
             <circle cx="12" cy="12" r="3.5" stroke-width="1.8" fill="none"/>
           </svg>
         </button>
-        <div class="settings-panel" id="settings-panel">
+        <div class="settings-panel" id="settings-panel" role="dialog" aria-label="Settings">
           <div class="settings-group-label">Appearance</div>
           <div class="settings-row settings-row-icons">
-            <button class="icon-pill-btn" id="mode-toggle-btn" aria-label="Toggle light/dark mode" data-tooltip="Toggle mode">
+            <button class="icon-pill-btn" id="mode-toggle-btn" aria-label="Toggle light/dark mode" aria-pressed="false" data-tooltip="Toggle mode">
               <svg class="icon-toggle-sun" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 <path d="M12 2.5V5M12 19V21.5M4.2 4.2L6 6M18 18L19.8 19.8M2.5 12H5M19 12H21.5M4.2 19.8L6 18M18 6L19.8 4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -89,7 +89,7 @@
                 <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
-            <button class="icon-pill-btn" id="theme-toggle-btn" aria-label="Toggle Turf/Dirt color theme" data-tooltip="Toggle color theme">
+            <button class="icon-pill-btn" id="theme-toggle-btn" aria-label="Toggle Turf/Dirt color theme" aria-pressed="false" data-tooltip="Toggle color theme">
               <svg class="icon-toggle-turf" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M6 20V13C6 10 8 8 8 8C8 8 6 10 6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M12 20V10C12 7 14 5 14 5C14 5 12 7 12 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -168,7 +168,7 @@
            one level above this build (../ from trackrecord/, ../../ from
            trackrecord/preview/). The current tool is marked, not linked:
            you are already there. -->
-      <div class="carotene-panel" id="carotene-panel" aria-hidden="true">
+      <div class="carotene-panel" id="carotene-panel" role="region" aria-label="Carotene" aria-hidden="true">
         <a class="carotene-panel-brand" href="../">
           <svg class="carotene-panel-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round">
             <g transform="rotate(45 12 12)">
@@ -295,10 +295,11 @@
       <div class="about-section">
         <div class="about-section-label">Privacy &amp; backup</div>
         <p>Your list stays private in this browser. Use <strong>Backup</strong> function to move it between sessions or devices.</p>
+        <p>The only network request this page makes is loading its font from Google Fonts; your list itself never leaves this browser.</p>
       </div>
       <div class="about-section about-links">
         <div class="about-section-label">More</div>
-        <p>Want to try the alternate build? Open the <a href="preview/">Preview version <span>(current version: 5.1 Beta 1)</span></a>.</p>
+        <p>Want to try the alternate build? Open the <a href="preview/">Preview version <span>(current version: 5.1-beta1.5)</span></a>.</p>
         <p class="about-credit">2026, Mujairkitten · Made with various AI tools · Not affiliated with Cygames.<br>Source code is licensed under GPL-3. Uma icons follow <a href="https://umamusume.com/fan-createdguide" rel="noopener noreferrer">Cygames' Fan Content Guide</a>.</p>
       </div>
       <div id="kao-banner"></div>
@@ -331,7 +332,7 @@
       <div class="backup-import-actions">
         <button class="btn small" id="backup-import-text-btn">Import pasted list</button>
         <label class="btn small" for="backup-import-file">Import from file</label>
-        <input type="file" id="backup-import-file" accept=".json">
+        <input type="file" id="backup-import-file" class="sr-only" accept=".json">
       </div>
     </div>
   </div>

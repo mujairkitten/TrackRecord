@@ -445,7 +445,7 @@ function chipHtml(apt, key) {
   const style = `--chip-bg:${bg};--chip-border:${borderMix};--chip-glow:${glowMix};`;
   // N6: escapeAttr round-trips correctly for any string (including literal `&amp;`).
   const safeJson = escapeAttr(JSON.stringify(value));
-  return `<span class="chip" tabindex="0" role="img" style="${style}" data-cat="${key}" data-json='${safeJson}' aria-label="${escapeAttr(ariaLabel)}" aria-describedby="tooltip">${label}</span>`;
+  return `<span class="chip" tabindex="0" style="${style}" data-cat="${key}" data-json='${safeJson}' aria-label="${escapeAttr(ariaLabel)}" aria-describedby="tooltip">${label}</span>`;
 }
 export function aptGroupsHtml(apt) {
   return `<div class="apt-groups">
@@ -529,14 +529,14 @@ export function iconHtml(name, size) {
   const img = KNOWN_ICON_SLUGS.has(slug)
     ? `<img src="../icons/${slug}.png" alt="" loading="lazy" decoding="async">`
     : '';
-  return `<div class="trainee-icon" style="--icon-size:${px}px">
+  return `<div class="trainee-icon" aria-hidden="true" style="--icon-size:${px}px">
   ${img}
   <span class="icon-fallback"${img ? '' : ' style="display:flex"'}>${initial}</span>
 </div>`;
 }
 export function blankIconHtml(size) {
   const px = Math.min(96, Math.max(16, Number(size) || 32));
-  return `<div class="trainee-icon trainee-icon-blank" style="--icon-size:${px}px"></div>`;
+  return `<div class="trainee-icon trainee-icon-blank" aria-hidden="true" style="--icon-size:${px}px"></div>`;
 }
 export function raceDateLabel(r) {
   const yearLabel = r.year.replace(/,\s*/g, '/');
@@ -799,6 +799,7 @@ export function showToast(message, opts = {}) {
   }
   if (kind === 'error') {
     el.style.borderColor = 'var(--f)';
+    el.setAttribute('role', 'alert');
     errorToast = el;
   }
   region.appendChild(el);

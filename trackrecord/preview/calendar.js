@@ -59,6 +59,9 @@ function isKnownRaceName(name) {
 function reorderRaceInSlot(t, slotKey, allSlotRaces, draggedName, targetName) {
   if (!isKnownRaceName(draggedName)) return;
   if (targetName && !isKnownRaceName(targetName)) targetName = null;
+  // Dropping a race onto itself is a no-op — without this the row would be
+  // filtered out and re-appended at the end of the slot.
+  if (targetName && targetName === draggedName) return;
   const pending = allSlotRaces.filter(r => !isRaceDone(t, r.name));
   let ordered = pendingOrderForSlot(t, slotKey, pending).map(r => r.name);
   ordered = ordered.filter(n => n !== draggedName);
@@ -398,7 +401,7 @@ function calSidebarHtml(activeTrainee, isEmpty) {
       <div class="cal-trainee-card-icon">${iconBlock}</div>
       <div class="cal-trainee-card-right">
         <div class="cal-trainee-card-name-row">
-          <button class="cal-trainee-name-btn" id="cal-trainee-btn" aria-haspopup="dialog" aria-expanded="${calTraineePanelOpen ? 'true' : 'false'}">
+          <button class="cal-trainee-name-btn" id="cal-trainee-btn" aria-expanded="${calTraineePanelOpen ? 'true' : 'false'}">
             <span class="cal-trainee-name">${escapeHtml(activeTrainee.name)}</span>
             <span class="cal-trainee-arrow">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -430,7 +433,7 @@ function calSidebarHtml(activeTrainee, isEmpty) {
       <div class="cal-tool-list${moreToolsRevealed ? ' open' : ''}" id="cal-tools-body">
         <div class="settings-group-label">Appearance</div>
         <div class="settings-row settings-row-icons">
-          <button class="icon-pill-btn" id="cal-mode-toggle-btn" aria-label="Toggle light/dark mode" data-tooltip="Toggle mode">
+          <button class="icon-pill-btn" id="cal-mode-toggle-btn" aria-label="Toggle light/dark mode" aria-pressed="${state.settings.lightMode ? 'true' : 'false'}" data-tooltip="Toggle mode">
             <svg class="icon-toggle-sun" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               <path d="M12 2.5V5M12 19V21.5M4.2 4.2L6 6M18 18L19.8 19.8M2.5 12H5M19 12H21.5M4.2 19.8L6 18M18 6L19.8 4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -439,7 +442,7 @@ function calSidebarHtml(activeTrainee, isEmpty) {
               <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
-          <button class="icon-pill-btn" id="cal-theme-toggle-btn" aria-label="Toggle Turf/Dirt color theme" data-tooltip="Toggle color theme">
+          <button class="icon-pill-btn" id="cal-theme-toggle-btn" aria-label="Toggle Turf/Dirt color theme" aria-pressed="${state.settings.colorTheme === 'dirt' ? 'true' : 'false'}" data-tooltip="Toggle color theme">
             <svg class="icon-toggle-turf" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M6 20V13C6 10 8 8 8 8C8 8 6 10 6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M12 20V10C12 7 14 5 14 5C14 5 12 7 12 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -761,7 +764,7 @@ export function renderCalendarView() {
         <div class="cal-tabs cal-tabs-main" id="cal-main-tabs" role="tablist" aria-label="Year group">
           ${mainTabs.map(tab => `<button class="cal-tab-btn ${calViewTab === tab ? 'active' : ''}" id="caltab-main-${tab}" data-tab="${tab}" role="tab" aria-selected="${calViewTab === tab ? 'true' : 'false'}" aria-controls="cal-main-page">${tab === "OoB" ? "Out-of-Bond" : tab}</button>`).join("")}
         </div>
-        <div class="cal-page" id="cal-main-page" role="tabpanel" aria-labelledby="caltab-main-${calViewTab}">${calPageHtml(activeTrainee, calViewTab)}</div>
+        <div class="cal-page" id="cal-main-page" role="tabpanel" aria-labelledby="caltab-main-${calViewTab}">${calPageHtml(activeTrainee, calViewTab, { showAdd: true })}</div>
       </div>
     </div>`;
 
